@@ -1,0 +1,7 @@
+streamlit
+openai
+faster-whisper
+python-dotenv
+docxtpl
+python-docx
+pypdf
