@@ -1,7 +1,5 @@
 import os
 import json
-from dotenv import load_dotenv
-from openai import OpenAI
 from faster_whisper import WhisperModel
 from docxtpl import DocxTemplate
 from docx import Document
@@ -9,14 +7,18 @@ from docx import Document
 # =============================
 # INIT
 # =============================
-load_dotenv()
+import streamlit as st
+from openai import OpenAI
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI(
+    api_key=st.secrets["OPENAI_API_KEY"]
+)
 
-if not os.getenv("OPENAI_API_KEY"):
-    raise ValueError("API key ontbreekt")
+@st.cache_resource
+def load_whisper():
+    return WhisperModel("base")
 
-whisper_model = WhisperModel("base")
+whisper_model = load_whisper()
 
 # =============================
 # HELPERS
