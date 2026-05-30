@@ -324,10 +324,7 @@ def generate_json(transcript, notes=""):
         - Gebruik
         - Opbouw (alleen hier subbullets)
         - Overige info
-        - "details" moet altijd een STRING zijn.
-           Nooit een lijst.
-           Nooit een array.
-           Nooit opgesplitst.
+        - details moet altijd één doorlopende tekstzin zijn, zonder opsplitsing, zonder arrays, zonder losse elementen. Het model moet details altijd als één enkele string genereren.
         - opbouw = array van strings
         - opbouw bevat ALLEEN stappen (1 stap per item)
         - geen "•" of "o" of "-" in output
@@ -469,13 +466,19 @@ def clean_supplements(data):
     for s in data.get("supplementen", []):
         d = s.get("details")
 
-        if isinstance(d, list):
-            d = " ".join(map(str, d))
-
+        # Als details None is → lege string
         if d is None:
             d = ""
 
-        s["details"] = str(d).strip()
+        # Als details een lijst is → samenvoegen tot één zin
+        if isinstance(d, list):
+            d = " ".join(str(x) for x in d)
+
+        # Als details per ongeluk per letter is opgesplitst → join opnieuw
+        if isinstance(d, str) and len(d) > 0 and all(len(ch) == 1 for ch in d.split()):
+            d = "".join(d)
+
+        s["details"] = d.strip()
 
     return data
 
