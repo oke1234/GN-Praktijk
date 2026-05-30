@@ -274,14 +274,15 @@ def generate_json(transcript, notes=""):
         Zoek indien aanwezig naar:
 
         - ingrediënten
+
         - dosering
         - gebruiksmoment
-        - opbouwschema 
-        - inhoud verpakking
+        - De functie of het doel van het supplement (zo specifiek mogelijk)
+        - opbouwschema (Elke stap zijn eigen subbullets)
+        - inhoud verpakking en prijs 
         - aantal capsules
         - aantal tabletten
         - aantal druppels
-        - prijs
         - bewaarinstructies
         - waarschuwingen
         - relevante toepassing
@@ -424,7 +425,8 @@ def generate_json(transcript, notes=""):
         "supplementen": [
             {{
             "naam": "",
-            "details": [],
+            "details": "",
+            "opbouw": [],
             "voor_ontbijt": false,
             "ontbijt": false,
             "tussen_1": false,
