@@ -489,13 +489,13 @@ def kruis(val):
 # =============================
 def generate_word(data, output="verslag.docx"):
     for s in data["supplementen"]:
-        s["kruis_voor_ontbijt"] = kruis(s["voor_ontbijt"])
-        s["kruis_ontbijt"] = kruis(s["ontbijt"])
-        s["kruis_tussen_1"] = kruis(s["tussen_1"])
-        s["kruis_lunch"] = kruis(s["lunch"])
-        s["kruis_tussen_2"] = kruis(s["tussen_2"])
-        s["kruis_diner"] = kruis(s["diner"])
-        s["kruis_voor_slapen"] = kruis(s["voor_slapen"])
+        s["kruis_voor_ontbijt"] = kruis(s.get("voor_ontbijt"))
+        s["kruis_ontbijt"] = kruis(s.get("ontbijt"))
+        s["kruis_tussen_1"] = kruis(s.get("tussen_1"))
+        s["kruis_lunch"] = kruis(s.get("lunch"))
+        s["kruis_tussen_2"] = kruis(s.get("tussen_2"))
+        s["kruis_diner"] = kruis(s.get("diner"))
+        s["kruis_voor_slapen"] = kruis(s.get("voor_slapen"))
 
     doc = DocxTemplate("template.docx")
     
