@@ -126,7 +126,6 @@ def generate_json(transcript, notes=""):
         - Magnesium bisglycinaat = match "magnesium" + "bisglycinaat"
         - Geen filtering door model toegestaan
         - Neem alleen relevante details over
-        - Gebruik korte concrete bullets
         - Vermeld:
         - dosering
         - gebruiksmoment
@@ -270,14 +269,14 @@ def generate_json(transcript, notes=""):
 
         Neem alleen informatie over die daadwerkelijk gevonden wordt.
 
-        Gebruik afzonderlijke bullets voor iedere detailregel.
+        Vermeld echter niet de bron dus zeg niet "Basisdocument:" of vergelijkbare notatie.
 
         Zoek indien aanwezig naar:
 
         - ingrediënten
         - dosering
         - gebruiksmoment
-        - opbouwschema (de verschillende stappen in sub bullets)
+        - opbouwschema 
         - inhoud verpakking
         - aantal capsules
         - aantal tabletten
@@ -289,7 +288,27 @@ def generate_json(transcript, notes=""):
 
         Prijs altijd opnemen indien beschikbaar.
 
-        Nooit meerdere details combineren in één bullet.
+        Geberuik Alleen Bullets bij verschillende stappen van het opbouwschema aparte bullets (subbullets/Open bolletjes).
+
+        Een goed voorbeeld van een supplemten notatie met details is:
+
+        Pro PräBioma van Tisso. zie ook https://shop.tisso.de/Pro_Pr%C3%A4bioma_von_Tisso
+        Kortingscode 312000100 (code geeft gedeeltelijke korting op verzendkosten). Bevat 4 soorten
+        vezels die gunstig zijn om goede darmbacteriën te voeden. Deze bacteriën produceren
+        vervolgens gunstige stoffen met gezondheid bevorderende effecten. Ook onderdrukt het de
+        minder gunstige bacteriën in de darm. Geleidelijk opbouwen. Oplossen in vlokkenontbijt, wat
+        yoghurt of in minstens 200ml water (warm lost beter op, hete thee kan). Pot 300 gram prijs
+        praktijk€33,96
+            o Start met 1⁄2 maatlepel per dag (=2,5 gr) of nog minder.
+            o Na 2 dagen verhogen naar 2x daags 1⁄2 maatlepel. Kan rondom het avondeten of ’s
+            avonds.
+            o Weer 2 dagen later 1 ms in de ochtend en 1⁄2 maatlepel in de avond. Eventueel
+            langzamer verhogen als dat beter voelt.
+            o Na 2 dagen doorgaan op 2x daags 1 maatlepel.
+            o Na 3-4 weken verlagen naar 1x daags in ontbijt.
+            o Bij bijzonderheden graag contact opnemen.
+
+        Als supplemten niet meer ingenomen hoeven te worden, vermeld dit dan expliciet met een duidelijke instructie. zoals: "[supplementnaam] stop als op"
 
         ==================================================
         SUPPLEMENT-INNAME
