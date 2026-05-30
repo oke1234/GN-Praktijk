@@ -324,6 +324,10 @@ def generate_json(transcript, notes=""):
         - Gebruik
         - Opbouw (alleen hier subbullets)
         - Overige info
+        - details = één doorlopende tekst (geen bullets, geen lijst, geen opsommingstekens)
+        - opbouw = array van strings
+        - opbouw bevat ALLEEN stappen (1 stap per item)
+        - geen "•" of "o" of "-" in output
 
         ==================================================
         SUPPLEMENT-INNAME
@@ -425,7 +429,7 @@ def generate_json(transcript, notes=""):
         "supplementen": [
             {{
             "naam": "",
-            "details": [],
+            "details": "",
             "opbouw": [],
             "voor_ontbijt": false,
             "ontbijt": false,
