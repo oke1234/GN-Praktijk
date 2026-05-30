@@ -432,7 +432,7 @@ def generate_json(transcript, notes=""):
         "supplementen": [
             {{
             "naam": "",
-            "details": [],
+            "details": "",
             "opbouw": [],
             "voor_ontbijt": false,
             "ontbijt": false,
@@ -469,38 +469,17 @@ def clean_supplements(data):
     for s in data.get("supplementen", []):
         d = s.get("details")
 
-        # als list van letters
         if isinstance(d, list):
-            d = "".join(d)
+            d = " ".join(map(str, d))
 
-        # als None
         if d is None:
             d = ""
 
-        # altijd string maken
         s["details"] = str(d).strip()
 
     return data
 
-def fix_details(data):
-    for s in data.get("supplementen", []):
-        d = s.get("details")
-
-        if isinstance(d, list):
-            s["details"] = "".join(d)
-
-        if not isinstance(s["details"], str):
-            s["details"] = str(s["details"])
-
-    return data
-
 def strip_bullets(data):
-    for s in data.get("supplementen", []):
-        if "details" in s:
-            s["details"] = [
-                d.replace("•", "").strip() for d in s["details"]
-                if d
-            ]
     return data
 
 def kruis(val):
@@ -552,7 +531,6 @@ if __name__ == "__main__":
     data = generate_json(transcript, notes)
     data = clean_supplements(data)
     data = strip_bullets(data)
-    data = fix_details(data)
 
     print("\nWord genereren...\n")
 
