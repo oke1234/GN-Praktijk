@@ -310,6 +310,20 @@ def generate_json(transcript, notes=""):
 
         Als supplemten niet meer ingenomen hoeven te worden, vermeld dit dan expliciet met een duidelijke instructie. zoals: "[supplementnaam] stop als op"
 
+        BELANGRIJKE STRUCTUURREGEL SUPPLEMENTEN:
+
+        - Eén supplement = één hoofdblok
+        - Binnen dat blok:
+        - alleen subbullets voor opbouwschema
+        - overige informatie mag in doorlopende tekst 
+        - Nooit één bullet per zin
+        - Nooit opsplitsen per regel
+        - Groepeer informatie logisch:
+        - Beschrijving
+        - Gebruik
+        - Opbouw (alleen hier subbullets)
+        - Overige info
+
         ==================================================
         SUPPLEMENT-INNAME
         ==================================================
