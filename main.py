@@ -425,7 +425,7 @@ def generate_json(transcript, notes=""):
         "supplementen": [
             {{
             "naam": "",
-            "details": "",
+            "details": [],
             "opbouw": [],
             "voor_ontbijt": false,
             "ontbijt": false,
