@@ -324,7 +324,10 @@ def generate_json(transcript, notes=""):
         - Gebruik
         - Opbouw (alleen hier subbullets)
         - Overige info
-        - details = één doorlopende tekst (geen bullets, geen lijst, geen opsommingstekens)
+        - "details" moet altijd een STRING zijn.
+           Nooit een lijst.
+           Nooit een array.
+           Nooit opgesplitst.
         - opbouw = array van strings
         - opbouw bevat ALLEEN stappen (1 stap per item)
         - geen "•" of "o" of "-" in output
@@ -476,6 +479,18 @@ def clean_supplements(data):
                 s["details"] = []
     return data
 
+def fix_details(data):
+    for s in data.get("supplementen", []):
+        d = s.get("details")
+
+        if isinstance(d, list):
+            s["details"] = "".join(d)
+
+        if not isinstance(s["details"], str):
+            s["details"] = str(s["details"])
+
+    return data
+
 def strip_bullets(data):
     for s in data.get("supplementen", []):
         if "details" in s:
@@ -534,6 +549,7 @@ if __name__ == "__main__":
     data = generate_json(transcript, notes)
     data = clean_supplements(data)
     data = strip_bullets(data)
+    data = fix_details(data)
 
     print("\nWord genereren...\n")
 
