@@ -324,13 +324,6 @@ def generate_json(transcript, notes=""):
         - Gebruik
         - Opbouw (alleen hier subbullets)
         - Overige info
-        - "details" moet altijd een STRING zijn.
-           Nooit een lijst.
-           Nooit een array.
-           Nooit opgesplitst.
-        - opbouw = array van strings
-        - opbouw bevat ALLEEN stappen (1 stap per item)
-        - geen "•" of "o" of "-" in output
 
         ==================================================
         SUPPLEMENT-INNAME
@@ -409,6 +402,13 @@ def generate_json(transcript, notes=""):
         - doseringswijzigingen
         - vervolgafspraken
 
+        BELANGRIJK:
+        - "details" MOET altijd een normale string zijn
+        - NOOIT een lijst
+        - NOOIT een array
+        - NOOIT per teken of woord opsplitsen
+        - NOOIT output zoals ['a','b','c']
+
         volledig zijn verwerkt.
 
         Verwijder niets.
@@ -467,16 +467,19 @@ def generate_json(transcript, notes=""):
 
 def clean_supplements(data):
     for s in data.get("supplementen", []):
-        # verwijder lege of "Onbekend" details
-        if "details" in s:
-            s["details"] = [
-                d for d in s["details"]
-                if d and d.strip() and d != "Onbekend"
-            ]
+        d = s.get("details")
 
-            # als leeg → volledig weghalen
-            if not s["details"]:
-                s["details"] = []
+        # als list van letters
+        if isinstance(d, list):
+            d = "".join(d)
+
+        # als None
+        if d is None:
+            d = ""
+
+        # altijd string maken
+        s["details"] = str(d).strip()
+
     return data
 
 def fix_details(data):
