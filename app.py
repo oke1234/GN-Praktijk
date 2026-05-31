@@ -5,6 +5,13 @@ from main import generate_word, generate_json, clean_supplements, strip_bullets,
 # ---------- UI ----------
 st.title("Consult Verslag Generator")
 
+# ---------- VORIG CONSULT ----------
+st.subheader("Vorig consult")
+previous_consult = st.text_area(
+    "Plak hier eventueel het verslag van het vorige consult",
+    height=200
+)
+
 # ---------- TRANSCRIPT ----------
 st.subheader("Transcript")
 
@@ -22,6 +29,8 @@ if audio_file:
 else:
     transcript = st.text_area("Of plak transcript")
 
+
+
 # ---------- NOTITIES ----------
 st.subheader("Notities")
 notes = st.text_area("Typ notities hier")
@@ -35,13 +44,18 @@ if st.button("Genereer Word document"):
 
     with st.spinner("AI is bezig..."):
 
-        data = generate_json(transcript, notes)
+        data = generate_json(
+            transcript=transcript,
+            notes=notes,
+            previous_consult=previous_consult
+        )
+
         data = clean_supplements(data)
         data = strip_bullets(data)
 
         import uuid
         output_file = f"verslag_{uuid.uuid4()}.docx"
-        
+
         generate_word(data, output_file)
 
     st.success("Klaar!")

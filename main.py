@@ -56,7 +56,7 @@ def transcribe_audio(file_path):
 # =============================
 # AI → JSON OUTPUT
 # =============================
-def generate_json(transcript, notes=""):
+def generate_json(transcript, notes="", previous_consult=""):
 
     SYSTEM = f"""
         DOEL:
@@ -166,6 +166,9 @@ def generate_json(transcript, notes=""):
         1. Transcript
         2. Notities
         3. Basisdocument (alleen voor supplementdetails)
+        4. Vorig consult (alleen als expliciet vermeld dat eerdere adviezen nog steeds gelden)
+
+
 
         Voeg nooit informatie toe die niet expliciet aanwezig is.
 
@@ -425,6 +428,50 @@ def generate_json(transcript, notes=""):
         - verwijder ze niet
 
         ==================================================
+        GEBRUIK VORIG CONSULT (OPVOLGREGELS)
+        ==================================================
+
+        Het vorige consult dient uitsluitend als opvolgcontext.
+
+        1. ALGEMEEN GEBRUIK
+        - Gebruik het vorige consult alleen om te bepalen wat nog actief, gewijzigd of gestopt is
+        - Voeg geen oude informatie toe als deze niet meer relevant is
+        - Gebruik het nooit als losse bron, alleen in combinatie met transcript en notities
+
+        2. HUIDIGE ADVIEZEN
+        - Als eerdere adviezen (voeding, leefstijl, acties) nog steeds gelden:
+        - behoud deze adviezen
+        - vermeld ze opnieuw in de juiste sectie
+        - werk ze bij als er kleine wijzigingen zijn
+
+        3. SUPPLEMENTEN (ZEER BELANGRIJK)
+        - Controleer supplementen uit het vorige consult
+        - Bepaal per supplement:
+        - moet het doorgaan → opnemen en eventueel aanvullen
+        - is het gestopt → expliciet vermelden als STOP
+        - is het aangepast → nieuwe instructie overschrijven
+
+        - Als een supplement uit het vorige consult NIET meer geldig is:
+        → vermeld expliciet: "[supplementnaam] stop als op"
+
+        - Als een supplement nog steeds geldt:
+        → neem het volledig over in het nieuwe consult
+
+        4. OPBOUWSCHEMA’S
+        - Als een supplement een opbouwschema had in het vorige consult:
+        - neem het over als het nog loopt
+        - pas alleen aan als het transcript dat aangeeft
+        - anders exact behouden
+
+        5. VOORRANGSREGEL
+        - Transcript en notities hebben altijd voorrang
+        - Vorig consult wordt alleen gebruikt voor voortzetting of stopzetting
+
+        6. GEEN DUBBELING
+        - Vermijd herhalen van oude adviezen als er geen verandering is
+        - Alleen opnemen als het relevant is voor het huidige consult
+
+        ==================================================
         EINDCONTROLE
         ==================================================
 
@@ -476,12 +523,16 @@ def generate_json(transcript, notes=""):
         ]
         }} 
     """
+    
     USER = f"""
-        TRANSCRIPT:
-        {transcript}
+    VORIG CONSULT:
+    {previous_consult}
 
-        NOTITIES:
-        {notes}
+    TRANSCRIPT:
+    {transcript}
+
+    NOTITIES:
+    {notes}
     """
 
     response = client.chat.completions.create(
