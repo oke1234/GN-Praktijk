@@ -512,13 +512,13 @@ def generate_json(transcript, notes="", previous_consult=""):
             "naam": "",
             "details": "",
             "opbouw": [],
-            "voor_ontbijt": false,
-            "ontbijt": false,
-            "tussen_1": false,
-            "lunch": false,
-            "tussen_2": false,
-            "diner": false,
-            "voor_slapen": false
+            "voor_ontbijt": "",
+            "ontbijt": "",
+            "tussen_1": "",
+            "lunch": "",
+            "tussen_2": "",
+            "diner": "",
+            "voor_slapen": ""
             }}
         ]
         }} 
