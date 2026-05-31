@@ -292,6 +292,8 @@ def generate_json(transcript, notes="", previous_consult=""):
 
         Prijs altijd opnemen indien beschikbaar.
 
+        Let op: zodra het inemen van supplementen niet meer nodig is, of wanneer een supplement gestopt moet worden, vermeld dit dan expliciet met een duidelijke instructie. Bijvoorbeeld: "[supplementnaam] stop als op".
+        
         Geberuik Alleen Bullets bij verschillende stappen van het opbouwschema aparte bullets (subbullets/Open bolletjes).
 
         Een goed voorbeeld van een supplemten notatie met details is:
@@ -311,9 +313,7 @@ def generate_json(transcript, notes="", previous_consult=""):
             o Na 2 dagen doorgaan op 2x daags 1 maatlepel.
             o Na 3-4 weken verlagen naar 1x daags in ontbijt.
             o Bij bijzonderheden graag contact opnemen.
-
-        Als supplemten niet meer ingenomen hoeven te worden, vermeld dit dan expliciet met een duidelijke instructie. zoals: "[supplementnaam] stop als op"
-
+    
         BELANGRIJKE STRUCTUURREGEL SUPPLEMENTEN:
 
         - Eén supplement = één hoofdblok
