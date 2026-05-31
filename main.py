@@ -329,6 +329,38 @@ def generate_json(transcript, notes=""):
         - opbouw bevat ALLEEN stappen (1 stap per item)
         - geen "•" of "o" of "-" in output
 
+        BELANGRIJKE REGEL OPBOUWSCHEMA
+        - Alles wat een opbouw, afbouw, verhoging, verlaging, startschema of doseerschema bevat, mag UITSLUITEND in het veld "opbouw" terechtkomen.
+        - Opbouwstappen mogen NOOIT in "details" worden opgenomen.
+        - In "details" mogen alleen algemene beschrijving, werking, gebruiksmoment, prijs, inhoud, waarschuwingen en overige productinformatie staan.
+        - Zinnen zoals:
+        - "start met"
+        - "verhoog naar"
+        - "na een week"
+        - "na enkele dagen"
+        - "opbouwen naar"
+        - "afbouwen naar"
+        - "om de dag"
+        - "2x daags"
+        - "1x daags"
+        moeten altijd worden omgezet naar afzonderlijke items in het veld "opbouw".
+
+        Voorbeeld:
+
+        FOUT:
+
+        "details": "Start met 1 capsule om de dag. Na een week dagelijks. Daarna 2x daags 1 capsule."
+
+        GOED:
+
+        "details": "Lactoferrine van Tisso. Bij voorkeur bij of vlak na de maaltijd. Pot 60 capsules."
+
+        "opbouw": [
+        "Start om de dag 1x daags 1 capsule",
+        "Na een week verhogen naar 1x daags elke dag",
+        "Na een week verhogen naar 2x daags 1 capsule"
+        ]
+
         ==================================================
         SUPPLEMENT-INNAME
         ==================================================
