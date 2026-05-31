@@ -7,11 +7,24 @@ st.title("Consult Verslag Generator met VC")
 
 # ---------- VORIG CONSULT ----------
 st.subheader("Vorig consult")
-previous_consult = st.text_area(
-    "Plak hier eventueel het verslag van het vorige consult",
-    height=200
+
+uploaded_file = st.file_uploader(
+    "Upload vorig consult (PDF of DOCX)",
+    type=["pdf", "docx"]
 )
 
+previous_consult = ""
+
+if uploaded_file is not None:
+    if uploaded_file.name.endswith(".docx"):
+        from docx import Document
+        doc = Document(uploaded_file)
+        previous_consult = "\n".join([p.text for p in doc.paragraphs if p.text.strip()])
+
+    elif uploaded_file.name.endswith(".pdf"):
+        from pdfminer.high_level import extract_text
+        previous_consult = extract_text(uploaded_file)
+        
 # ---------- TRANSCRIPT ----------
 st.subheader("Transcript")
 
