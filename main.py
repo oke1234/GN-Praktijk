@@ -135,13 +135,27 @@ def generate_json(transcript, notes="", previous_consult=""):
         indien beschikbaar
 
         MOMENTEN:
-        - "voor ontbijt" =
-        "voor_ontbijt": true
-        "ontbijt": false
 
-        - "bij ontbijt" =
-        "ontbijt": true
-        "voor_ontbijt": false
+        Gebruik geen true of false.
+
+        Vul per moment de exacte hoeveelheid in.
+
+        Voorbeelden:
+
+        voor ontbijt:
+        "voor_ontbijt": "1 druppel"
+
+        bij ontbijt:
+        "ontbijt": "2 capsules"
+
+        tussen ontbijt en lunch:
+        "tussen_1": "5 druppels"
+
+        voor slapen:
+        "voor_slapen": "1 capsule"
+
+        Wanneer een supplement niet op dat moment wordt ingenomen:
+        gebruik een lege string ""
 
         TUSSEN_MOMENTEN:
         - tussen_1 = tussen ontbijt en lunch
@@ -571,8 +585,12 @@ def strip_bullets(data):
     return data
 
 def kruis(val):
-    return "✖" if val is True else ""
-    
+    if val is None:
+        return "✖"
+    if isinstance(val, str) and val.strip() == "":
+        return "✖"
+    return val
+
 # =============================
 # WORD GENERATOR
 # =============================
