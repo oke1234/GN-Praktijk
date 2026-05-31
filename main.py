@@ -394,8 +394,9 @@ def generate_json(transcript, notes="", previous_consult=""):
         (2 cap) of 2 = "2 capsules"
         (1 dr) = "1 druppel"
         (2 dr) = "2 druppels"
-        (om de dag)
+        (om de dag) = "om de dag" 
 
+        Crèmes, zalven en andere uitwendige middelen: gebruik ✖ op het moment dat het gebruikt moet worden, anders leeg laten.      
         Gebruik uitsluitend informatie die daadwerkelijk genoemd wordt.
 
         ==================================================
@@ -585,22 +586,25 @@ def strip_bullets(data):
     return data
 
 def kruis(val):
-    # niks ingevuld → leeg
-    if val is None:
+    if not val or not isinstance(val, str):
         return ""
 
-    if isinstance(val, str):
-        val = val.strip()
+    val = val.strip().lower()
 
-        # echt leeg → niets tonen
-        if val == "":
-            return ""
+    if val == "":
+        return ""
 
-        # als het een echte dosering is → toon die
-        if "dr" in val or "capsule" in val or "druppel" in val:
-            return val
+    # normaliseer lange woorden naar afkortingen
+    val = val.replace("capsule", "cap")
+    val = val.replace("druppel", "dr")
+    val = val.replace("druppels", "dr")
+    val = val.replace("tabletten", "tab")
+    val = val.replace("tablet", "tab")
 
-    # alles wat geen inname is → kruis
+    # alleen deze mogen door
+    if any(x in val for x in ["cap", "dr", "tab", "mg", "om de dag"]):
+        return val
+
     return "✖"
 
 # =============================
