@@ -585,11 +585,23 @@ def strip_bullets(data):
     return data
 
 def kruis(val):
+    # niks ingevuld → leeg
     if val is None:
-        return "✖"
-    if isinstance(val, str) and val.strip() == "":
-        return "✖"
-    return val
+        return ""
+
+    if isinstance(val, str):
+        val = val.strip()
+
+        # echt leeg → niets tonen
+        if val == "":
+            return ""
+
+        # als het een echte dosering is → toon die
+        if "dr" in val or "capsule" in val or "druppel" in val:
+            return val
+
+    # alles wat geen inname is → kruis
+    return "✖"
 
 # =============================
 # WORD GENERATOR
