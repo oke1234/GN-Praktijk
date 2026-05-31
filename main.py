@@ -331,6 +331,8 @@ def generate_json(transcript, notes=""):
 
         BELANGRIJKE REGEL OPBOUWSCHEMA
         - Alles wat een opbouw, afbouw, verhoging, verlaging, startschema of doseerschema bevat, mag UITSLUITEND in het veld "opbouw" terechtkomen.
+        - Een enkele startdosering, onderhoudsdosering of gebruiksinstructie is GEEN opbouwschema.
+        - Alleen wanneer een dosering in de tijd verandert (bijvoorbeeld verhogen, verlagen, opbouwen of afbouwen in meerdere stappen) moet het veld "opbouw" worden gebruikt.
         - Opbouwstappen mogen NOOIT in "details" worden opgenomen.
         - In "details" mogen alleen algemene beschrijving, werking, gebruiksmoment, prijs, inhoud, waarschuwingen en overige productinformatie staan.
         - Zinnen zoals:
