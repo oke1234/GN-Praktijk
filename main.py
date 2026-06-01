@@ -384,7 +384,7 @@ def generate_json(transcript, notes="", previous_consult=""):
         SUPPLEMENT-INNAME
         ==================================================
 
-        Vul tijdsvakken zo nauwkeurig mogelijk.
+        Vul tijdsvakken zo nauwkeurig mogelijk. Probeer bij elke supplement minimaal een vak in te vullen.
 
         Gebruik exacte hoeveelheden.
 
@@ -400,8 +400,12 @@ def generate_json(transcript, notes="", previous_consult=""):
         
         Noteer de iname als afkorting dus zonder "capsule", "druppel" of "tablet" maar met "cap", "dr" of "tab". Dus:
         "voor_ontbijt": "1 cap"
-
-        Gebruik uitsluitend informatie die daadwerkelijk genoemd wordt.
+        "ontbijt": "2 dr"
+        "tussen_1": "om de dag"
+        "lunch": "1 tab"
+        "tussen_2": "✖"
+        "diner": ""
+        "voor_slapen": "1 cap"
 
         ==================================================
         MINERALENOVERZICHT
