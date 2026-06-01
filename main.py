@@ -398,7 +398,7 @@ def generate_json(transcript, notes="", previous_consult=""):
 
         Crèmes, zalven en andere uitwendige middelen: gebruik ✖ op het moment dat het gebruikt moet worden, anders leeg laten. (doe dit ook bij supplemten waarbij het niet gaat om capsules of druppels)      
         
-        Noteer de iname als afkorting dus zonder "capsule", "druppel" of "tablet" maar met "cap", "dr" of "tab". Dus:
+        Noteer de iname als afkorting dus zonder "capsule", "druppel" of "tablet" maar met "cap", "dr" of "tab". Dus als voorbeeld:
         "voor_ontbijt": "1 cap"
         "ontbijt": "2 dr"
         "tussen_1": "om de dag"
