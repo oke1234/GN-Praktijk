@@ -390,17 +390,18 @@ def generate_json(transcript, notes="", previous_consult=""):
 
         Voorbeelden:
 
-        (1 cap) of 1 = "1 cap"
-        (2 cap) of 2 = "2 cap"
-        (1 dr) = "1 dr"
-        (2 dr) = "2 dr"
-        (om de dag) = "om de dag"
+        (1 cap) of 1 = "1 capsule"
+        (2 cap) of 2 = "2 capsules"
+        (1 dr) = "1 druppel"
+        (2 dr) = "2 druppels"
+        (om de dag) = "om de dag" 
 
-        Crèmes, zalven en andere uitwendige middelen: gebruik ✖ op het moment dat het gebruikt moet worden, anders leeg laten. Dit geldt ook voor supplementen zonder duidelijke capsule/druppel/tablet-vorm.
+        Crèmes, zalven en andere uitwendige middelen: gebruik ✖ op het moment dat het gebruikt moet worden, anders leeg laten. (doe dit ook bij supplemten waarbij het niet gaat om capsules of druppels)      
+        
+        Noteer de iname als afkorting dus zonder "capsule", "druppel" of "tablet" maar met "cap", "dr" of "tab". Dus:
+        "voor_ontbijt": "1 cap"
 
         Gebruik uitsluitend informatie die daadwerkelijk genoemd wordt.
-
-        Laat velden leeg als er geen expliciete inname is vermeld. genoemd wordt.
 
         ==================================================
         MINERALENOVERZICHT
