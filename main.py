@@ -408,37 +408,34 @@ def generate_json(transcript, notes="", previous_consult=""):
         "voor_slapen": "1 cap"
 
         ==================================================
-        MINERALENOVERZICHT
+        MINERALENTABEL
         ==================================================
 
-        Analyseer transcript en notities volledig.
+        Taak: Zoek uitsluitend naar mineralen, druppels en mineraalsupplementen in transcript en notities.
 
-        Zoek naar:
+        Regels:
+        - Gebruik alleen letterlijk aanwezige informatie
+        - Geen interpretatie
+        - Geen toevoegingen
+        - Geen uitleg
 
-        - mineralen
-        - druppels
-        - mineraalsupplementen
-        - doseringswijzigingen
+        OUTPUT:
 
-        Indien voldoende informatie aanwezig is, maak aan het einde van "huidige_situatie" een apart overzicht met:
+        1. Als er GEEN mineralen genoemd worden:
+        → Laat het dan leeg, dus gebruik een lege string "" in plaats van een tabel of tekst.
 
-        - mineraal
-        - huidige dosering
-        - eerste doel
-        - tweede doel
-        - opmerkingen
+        2. Als er MINSTENS 1 mineraal genoemd wordt:
+        → schrijf EXACT onderstaande tabel
+        → geen tekst erboven of eronder
 
-        Gebruik uitsluitend letterlijk aanwezige informatie.
+        | Mineraal | Huidige dosering | Eerste doel | Tweede doel | Opmerkingen |
 
-        Indien geen mineralen genoemd worden:
-        geen overzicht opnemen.
-
-        MINERALENOVERZICHT REGEL:
-        - Het mineralenoverzicht wordt ALTIJD als LAATSTE veld in de JSON geplaatst.
-        - Het staat dus onderaan het JSON-object, direct vóór de afsluitende.
-        - Het mag niet in een ander veld staan (zoals huidige_situatie).
-        - Het mag niet buiten de JSON worden geplaatst.
-        - Als er geen mineralen zijn: veld blijft leeg ("").
+        Invulling:
+        - Niet vermeld = "-"
+        - Eerste consult = waarschijnlijk "-" bij dosering
+        - Doel 1 = eerste doel
+        - Doel 2 = tweede doel
+        - Alleen 1 doel → tweede = "-"
 
         ==================================================
         BEHOUD VAN VORIGE ADVIEZEN
@@ -543,7 +540,7 @@ def generate_json(transcript, notes="", previous_consult=""):
             "diner": "",
             "voor_slapen": ""
             }}
-        ]
+        ],
         }} 
     """
     
