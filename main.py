@@ -541,6 +541,7 @@ def generate_json(transcript, notes="", previous_consult=""):
             "voor_slapen": ""
             }}
         ],
+        "mineralenoverzicht": []
         }} 
     """
     
