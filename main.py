@@ -433,7 +433,7 @@ def generate_json(transcript, notes="", previous_consult=""):
         Invulling:
         - Niet vermeld = "-"
         
-        Voor ieder mineraal invullen:
+        Voor elke mineraal dat genoemgd wordt in het transcript het volgende invullen:
         - huidige_dosering = huidige waarde uit consult
         - eerste_doel = eerste doelwaarde
         - tweede_doel = tweede doelwaarde
