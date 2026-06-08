@@ -436,6 +436,7 @@ def generate_json(transcript, notes="", previous_consult=""):
         - Doel 1 = eerste doel
         - Doel 2 = tweede doel
         - Alleen 1 doel → tweede = "-"
+        - Als er mineralen zijn zorg dan dat je alles zo volledig mogelijk invult, dus ook dosering en opmerkingen als die er zijn
 
         ==================================================
         BEHOUD VAN VORIGE ADVIEZEN
