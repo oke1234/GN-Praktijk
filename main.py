@@ -542,13 +542,13 @@ def generate_json(transcript, notes="", previous_consult=""):
             }}
         ],
         "mineralenoverzicht": [
-            {
+            {{
                 "mineraal": "",
                 "huidige_dosering": "",
                 "eerste_doel": "",
                 "tweede_doel": "",
                 "opmerkingen": ""
-            }
+            }}
         ]
         }} 
     """
