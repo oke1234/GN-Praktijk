@@ -541,7 +541,15 @@ def generate_json(transcript, notes="", previous_consult=""):
             "voor_slapen": ""
             }}
         ],
-        "mineralenoverzicht": []
+        "mineralenoverzicht": [
+            {
+                "mineraal": "",
+                "huidige_dosering": "",
+                "eerste_doel": "",
+                "tweede_doel": "",
+                "opmerkingen": ""
+            }
+        ]
         }} 
     """
     
