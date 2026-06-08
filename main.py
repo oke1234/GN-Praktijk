@@ -432,10 +432,24 @@ def generate_json(transcript, notes="", previous_consult=""):
 
         Invulling:
         - Niet vermeld = "-"
-        - Eerste consult = waarschijnlijk "-" bij dosering
-        - Doel 1 = eerste doel
-        - Doel 2 = tweede doel
-        - Alleen 1 doel → tweede = "-"
+        
+        Voor ieder mineraal invullen:
+        - huidige_dosering = huidige waarde uit consult
+        - eerste_doel = eerste doelwaarde
+        - tweede_doel = tweede doelwaarde
+        - opmerkingen = bijvoorbeeld "stop als op"
+
+        Voorbeelden:
+        Magnesium:
+        huidige_dosering = 7
+        eerste_doel = 7
+        tweede_doel = 5
+
+        Boron:
+        huidige_dosering = 1 (0)
+        eerste_doel = -
+        tweede_doel = -
+        opmerkingen = stop als op
 
         ==================================================
         BEHOUD VAN VORIGE ADVIEZEN
