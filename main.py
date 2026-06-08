@@ -239,6 +239,11 @@ def generate_json(transcript, notes="", previous_consult=""):
 
         Gebruik bullets.
 
+        BELANGRIJK
+        - huidige_situatie = array van losse bullets (geen •)
+        - voeding_verminderen = array
+        - voeding_verhogen = array
+
         ==================================================
         ONDERZOEKEN
         ==================================================
@@ -522,9 +527,9 @@ def generate_json(transcript, notes="", previous_consult=""):
         "datum": "",
         "naam": "",
         "volgende_consult": "",
-        "huidige_situatie": "",
-        "voeding_verminderen": "",
-        "voeding_verhogen": "",
+        "huidige_situatie": [],
+        "voeding_verminderen": [],
+        "voeding_verhogen": [],
         "onderzoeken": "",
         "therapeuten": "",
         "supplementen": [
