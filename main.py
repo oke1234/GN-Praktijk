@@ -202,7 +202,7 @@ def generate_json(transcript, notes="", previous_consult=""):
         - Concreet en volledig
         - Beschrijf voortgang, klachten, reacties, energie, gewicht, slaap, ontlasting, behandelingstrajecten en andere relevante ontwikkelingen
         - Gebruik meerdere bullets indien nodig
-        - Gebruik bullets. Zet elke bullet op een nieuwe regel en start met "•".
+        - Elke bullet start met "•"
 
         ==================================================
         VOEDING_VERMINDEREN
@@ -221,7 +221,7 @@ def generate_json(transcript, notes="", previous_consult=""):
 
         Behoud ook eerder gegeven adviezen indien expliciet vermeld als nog lopend.
 
-        Gebruik bullets. Zet elke bullet op een nieuwe regel en start met "•".
+        Gebruik bullets.
 
         ==================================================
         VOEDING_VERHOGEN
@@ -237,7 +237,7 @@ def generate_json(transcript, notes="", previous_consult=""):
         - Doel of gewenste ondersteuning
         - Aandachtspunten voor observatie
 
-        Gebruik bullets. Zet elke bullet op een nieuwe regel en start met "•".
+        Gebruik bullets.
 
         ==================================================
         ONDERZOEKEN
@@ -436,7 +436,6 @@ def generate_json(transcript, notes="", previous_consult=""):
         - Doel 1 = eerste doel
         - Doel 2 = tweede doel
         - Alleen 1 doel → tweede = "-"
-        - Als er mineralen zijn zorg dan dat je alles zo volledig mogelijk invult, dus ook dosering en opmerkingen als die er zijn
 
         ==================================================
         BEHOUD VAN VORIGE ADVIEZEN
