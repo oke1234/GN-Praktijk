@@ -415,7 +415,9 @@ def generate_json(transcript, notes="", previous_consult=""):
 
         Regels:
         - Gebruik alleen letterlijk aanwezige informatie
-        - Vul de tabel concreet en volledig in gebruik voral nummers en specifieke details
+        - Geen interpretatie
+        - Geen toevoegingen
+        - Geen uitleg
 
         OUTPUT:
 
