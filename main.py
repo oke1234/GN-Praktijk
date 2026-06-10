@@ -80,7 +80,7 @@ Generate a new document using the SAME style and structure as the example.
             {"role": "system", "content": SYSTEM},
             {"role": "user", "content": USER}
         ],
-        temperature=0.7
+        temperature=1
     )
 
     return response.choices[0].message.content
