@@ -31,19 +31,21 @@ def read_docx(file):
     return "\n".join([p.text for p in doc.paragraphs if p.text.strip()])
 
 # =========================================================
-# STEP 1 — STRUCTURE EXTRACTION (NOW JSON = MUCH STRONGER)
+# STEP 1 — STRUCTURE EXTRACTION (STRONG JSON)
 # =========================================================
 def extract_blueprint(example_text):
 
     SYSTEM = """
-You are a DOCUMENT STRUCTURE ENGINE.
+You are a CLINICAL DOCUMENT STRUCTURE ENGINE.
 
-Extract the document into STRICT JSON format.
+Extract STRICT JSON blueprint.
 
 RULES:
-- No explanations
-- No extra text
-- Output VALID JSON ONLY
+- Preserve order
+- Detect sections exactly
+- Detect tables, bullets, paragraphs
+- NO content rewriting
+- OUTPUT ONLY JSON
 
 FORMAT:
 
@@ -51,23 +53,18 @@ FORMAT:
   "sections": [
     {
       "title": "",
-      "type": "text | bullets | table",
-      "subsections": [
+      "blocks": [
         {
-          "title": "",
-          "type": "text | bullets | table",
-          "table_columns": []
+          "type": "paragraph | bullets | table",
+          "content": "",
+          "items": [],
+          "columns": [],
+          "rows": []
         }
       ]
     }
   ]
 }
-
-IMPORTANT:
-- Preserve exact order
-- Detect tables precisely
-- Detect bullet sections
-- Detect headings
 """
 
     response = client.chat.completions.create(
@@ -82,22 +79,21 @@ IMPORTANT:
 
     return json.loads(response.choices[0].message.content)
 
-
 # =========================================================
-# STEP 2 — CONTENT GENERATION PER SECTION (LOCKED SYSTEM)
+# STEP 2 — FILL SECTION (BLOCK BASED)
 # =========================================================
 def generate_section(section, transcript, notes, previous_consult):
 
     SYSTEM = """
-You fill in a SINGLE section of a medical document.
+You are a MEDICAL DOCUMENT FILL ENGINE.
 
 RULES:
-- Follow section type EXACTLY
-- Do not change structure
-- Be extremely detailed
+- Follow structure EXACTLY
+- Fill each block correctly
 - No summarization
-- Medical precision required
-- Output only section content
+- No merging blocks
+- Keep bullets atomic (1 idea per bullet)
+- Output VALID JSON for blocks only
 """
 
     USER = f"""
@@ -113,7 +109,8 @@ NOTES:
 PREVIOUS:
 {previous_consult}
 
-Fill ONLY this section with correct content.
+Fill this section with correct clinical content.
+Return same structure, only filled content.
 """
 
     response = client.chat.completions.create(
@@ -122,34 +119,29 @@ Fill ONLY this section with correct content.
             {"role": "system", "content": SYSTEM},
             {"role": "user", "content": USER}
         ],
-        temperature=1
+        temperature=1,
+        response_format={"type": "json_object"}
     )
 
-    return response.choices[0].message.content
-
+    return json.loads(response.choices[0].message.content)
 
 # =========================================================
-# STEP 3 — FULL DOCUMENT GENERATION
+# STEP 3 — FULL DOCUMENT
 # =========================================================
 def generate_document(transcript, notes, example_text, previous_consult=""):
 
     blueprint = extract_blueprint(example_text)
 
-    final_sections = []
+    final = []
 
     for section in blueprint["sections"]:
         filled = generate_section(section, transcript, notes, previous_consult)
-        final_sections.append({
-            "title": section["title"],
-            "content": filled,
-            "type": section["type"]
-        })
+        final.append(filled)
 
-    return final_sections
-
+    return final
 
 # =========================================================
-# STEP 4 — WORD EXPORT (PROPER STRUCTURE)
+# STEP 4 — WORD EXPORT (PROFESSIONAL LAYOUT)
 # =========================================================
 def generate_word(sections, output_file):
 
@@ -157,30 +149,36 @@ def generate_word(sections, output_file):
 
     for sec in sections:
 
-        # Heading
         doc.add_heading(sec["title"], level=1)
 
-        content = sec["content"]
+        for block in sec["blocks"]:
 
-        for line in content.split("\n"):
+            btype = block.get("type")
 
-            line = line.strip()
-            if not line:
-                continue
-
-            # TABLE DETECTION
-            if "|" in line:
-                cells = [c.strip() for c in line.split("|")]
-                table = doc.add_table(rows=1, cols=len(cells))
-                for i, cell in enumerate(cells):
-                    table.rows[0].cells[i].text = cell
-                continue
+            # PARAGRAPH
+            if btype == "paragraph":
+                doc.add_paragraph(block.get("content", ""))
 
             # BULLETS
-            if line.startswith("•"):
-                doc.add_paragraph(line, style="List Bullet")
-            else:
-                doc.add_paragraph(line)
+            elif btype == "bullets":
+                for item in block.get("items", []):
+                    doc.add_paragraph(item, style="List Bullet")
+
+            # TABLE
+            elif btype == "table":
+                cols = block.get("columns", [])
+                rows = block.get("rows", [])
+
+                if cols:
+                    table = doc.add_table(rows=1, cols=len(cols))
+
+                    for i, c in enumerate(cols):
+                        table.rows[0].cells[i].text = str(c)
+
+                    for r in rows:
+                        row_cells = table.add_row().cells
+                        for i, val in enumerate(r):
+                            row_cells[i].text = str(val)
 
     doc.save(output_file)
     return output_file
