@@ -11,15 +11,15 @@ from main import (
 # =========================
 # UI
 # =========================
-st.title("AI Consult Verslag Generator (Style Clone)")
+st.title("AI Consult Verslag Generator (Blueprint System)")
 
 # =========================
-# EXAMPLE DOCUMENT (IMPORTANT)
+# EXAMPLE DOCUMENT
 # =========================
-st.subheader("📄 Voorbeeld (stijl template)")
+st.subheader("📄 Voorbeeld document (BELANGRIJK)")
 
 example_file = st.file_uploader(
-    "Upload voorbeeld document (DOCX)",
+    "Upload voorbeeld DOCX",
     type=["docx"]
 )
 
@@ -30,12 +30,12 @@ if example_file:
     st.success("Voorbeeld geladen")
 
 # =========================
-# VORIG CONSULT (OPTIONAL)
+# VORIG CONSULT
 # =========================
 st.subheader("📋 Vorig consult (optioneel)")
 
 previous_file = st.file_uploader(
-    "Upload vorig consult (DOCX)",
+    "Upload vorig consult",
     type=["docx"],
     key="prev"
 )
@@ -68,6 +68,7 @@ else:
 # NOTES
 # =========================
 st.subheader("📝 Notities")
+
 notes = st.text_area("Extra notities")
 
 # =========================
@@ -83,7 +84,7 @@ if st.button("Genereer document"):
         st.error("Geen transcript")
         st.stop()
 
-    with st.spinner("AI analyseert stijl en maakt document..."):
+    with st.spinner("AI bouwt blueprint en genereert document..."):
 
         output_text = generate_document(
             transcript=transcript,

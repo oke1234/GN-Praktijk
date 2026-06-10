@@ -1,7 +1,6 @@
-import json
 import uuid
+import json
 from docx import Document
-from docxtpl import DocxTemplate
 from faster_whisper import WhisperModel
 from openai import OpenAI
 import streamlit as st
@@ -25,53 +24,96 @@ def transcribe_audio(file_path):
     return " ".join([s.text for s in segments]).strip()
 
 # =========================
-# READ DOCX
+# DOCX READER
 # =========================
 def read_docx(file):
     doc = Document(file)
     return "\n".join([p.text for p in doc.paragraphs if p.text.strip()])
 
-# =========================
-# AI CORE (STYLE TRANSFER)
-# =========================
-def generate_document(transcript, notes, example_text, previous_consult=""):
+# =========================================================
+# STEP 1 — STRUCTURE EXTRACTION (NOW JSON = MUCH STRONGER)
+# =========================================================
+def extract_blueprint(example_text):
 
     SYSTEM = """
-You are a professional document style replication AI.
+You are a DOCUMENT STRUCTURE ENGINE.
 
-TASK:
-1. Analyze the EXAMPLE document.
-2. Extract:
-   - structure (sections, order)
-   - writing tone
-   - bullet style
-   - formatting patterns
-   - level of detail
-3. Apply EXACT same structure and style to new input.
+Extract the document into STRICT JSON format.
 
 RULES:
-- Do NOT copy content from example
-- Only copy style + structure
-- Keep formatting identical
-- Do NOT output JSON
-- Output clean formatted text only
-- Do NOT explain anything
+- No explanations
+- No extra text
+- Output VALID JSON ONLY
+
+FORMAT:
+
+{
+  "sections": [
+    {
+      "title": "",
+      "type": "text | bullets | table",
+      "subsections": [
+        {
+          "title": "",
+          "type": "text | bullets | table",
+          "table_columns": []
+        }
+      ]
+    }
+  ]
+}
+
+IMPORTANT:
+- Preserve exact order
+- Detect tables precisely
+- Detect bullet sections
+- Detect headings
+"""
+
+    response = client.chat.completions.create(
+        model="gpt-5-mini",
+        messages=[
+            {"role": "system", "content": SYSTEM},
+            {"role": "user", "content": example_text}
+        ],
+        temperature=1,
+        response_format={"type": "json_object"}
+    )
+
+    return json.loads(response.choices[0].message.content)
+
+
+# =========================================================
+# STEP 2 — CONTENT GENERATION PER SECTION (LOCKED SYSTEM)
+# =========================================================
+def generate_section(section, transcript, notes, previous_consult):
+
+    SYSTEM = """
+You fill in a SINGLE section of a medical document.
+
+RULES:
+- Follow section type EXACTLY
+- Do not change structure
+- Be extremely detailed
+- No summarization
+- Medical precision required
+- Output only section content
 """
 
     USER = f"""
-EXAMPLE DOCUMENT (STYLE TEMPLATE):
-{example_text}
+SECTION STRUCTURE:
+{json.dumps(section, indent=2)}
 
-PREVIOUS CONSULT (optional context):
-{previous_consult}
-
-NEW TRANSCRIPT:
+TRANSCRIPT:
 {transcript}
 
 NOTES:
 {notes}
 
-Generate a new document using the SAME style and structure as the example.
+PREVIOUS:
+{previous_consult}
+
+Fill ONLY this section with correct content.
 """
 
     response = client.chat.completions.create(
@@ -86,12 +128,59 @@ Generate a new document using the SAME style and structure as the example.
     return response.choices[0].message.content
 
 
-# =========================
-# WORD EXPORT
-# =========================
-def generate_word(text, output_file):
+# =========================================================
+# STEP 3 — FULL DOCUMENT GENERATION
+# =========================================================
+def generate_document(transcript, notes, example_text, previous_consult=""):
+
+    blueprint = extract_blueprint(example_text)
+
+    final_sections = []
+
+    for section in blueprint["sections"]:
+        filled = generate_section(section, transcript, notes, previous_consult)
+        final_sections.append({
+            "title": section["title"],
+            "content": filled,
+            "type": section["type"]
+        })
+
+    return final_sections
+
+
+# =========================================================
+# STEP 4 — WORD EXPORT (PROPER STRUCTURE)
+# =========================================================
+def generate_word(sections, output_file):
+
     doc = Document()
-    for line in text.split("\n"):
-        doc.add_paragraph(line)
+
+    for sec in sections:
+
+        # Heading
+        doc.add_heading(sec["title"], level=1)
+
+        content = sec["content"]
+
+        for line in content.split("\n"):
+
+            line = line.strip()
+            if not line:
+                continue
+
+            # TABLE DETECTION
+            if "|" in line:
+                cells = [c.strip() for c in line.split("|")]
+                table = doc.add_table(rows=1, cols=len(cells))
+                for i, cell in enumerate(cells):
+                    table.rows[0].cells[i].text = cell
+                continue
+
+            # BULLETS
+            if line.startswith("•"):
+                doc.add_paragraph(line, style="List Bullet")
+            else:
+                doc.add_paragraph(line)
+
     doc.save(output_file)
     return output_file
