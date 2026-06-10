@@ -1,32 +1,54 @@
 import streamlit as st
-from docx import Document
-from main import generate_word, generate_json, clean_supplements, strip_bullets, transcribe_audio
+import uuid
 
-# ---------- UI ----------
-st.title("Consult Verslag Generator met VC")
+from main import (
+    read_docx,
+    generate_document,
+    generate_word,
+    transcribe_audio
+)
 
-# ---------- VORIG CONSULT ----------
-st.subheader("Vorig consult")
+# =========================
+# UI
+# =========================
+st.title("AI Consult Verslag Generator (Style Clone)")
 
-uploaded_file = st.file_uploader(
-    "Upload vorig consult (PDF of DOCX)",
-    type=["pdf", "docx"]
+# =========================
+# EXAMPLE DOCUMENT (IMPORTANT)
+# =========================
+st.subheader("📄 Voorbeeld (stijl template)")
+
+example_file = st.file_uploader(
+    "Upload voorbeeld document (DOCX)",
+    type=["docx"]
+)
+
+example_text = ""
+
+if example_file:
+    example_text = read_docx(example_file)
+    st.success("Voorbeeld geladen")
+
+# =========================
+# VORIG CONSULT (OPTIONAL)
+# =========================
+st.subheader("📋 Vorig consult (optioneel)")
+
+previous_file = st.file_uploader(
+    "Upload vorig consult (DOCX)",
+    type=["docx"],
+    key="prev"
 )
 
 previous_consult = ""
 
-if uploaded_file is not None:
-    if uploaded_file.name.endswith(".docx"):
-        from docx import Document
-        doc = Document(uploaded_file)
-        previous_consult = "\n".join([p.text for p in doc.paragraphs if p.text.strip()])
+if previous_file:
+    previous_consult = read_docx(previous_file)
 
-    elif uploaded_file.name.endswith(".pdf"):
-        from pdfminer.high_level import extract_text
-        previous_consult = extract_text(uploaded_file)
-        
-# ---------- TRANSCRIPT ----------
-st.subheader("Transcript")
+# =========================
+# TRANSCRIPT
+# =========================
+st.subheader("🎤 Transcript")
 
 audio_file = st.file_uploader("Upload audio (mp3/wav)", type=["mp3", "wav"])
 
@@ -37,39 +59,41 @@ if audio_file:
         f.write(audio_file.read())
 
     transcript = transcribe_audio("temp_audio.mp3")
-    st.success("Audio getranscribeerd")
+    st.success("Transcript gemaakt")
 
 else:
     transcript = st.text_area("Of plak transcript")
 
+# =========================
+# NOTES
+# =========================
+st.subheader("📝 Notities")
+notes = st.text_area("Extra notities")
 
+# =========================
+# GENERATE
+# =========================
+if st.button("Genereer document"):
 
-# ---------- NOTITIES ----------
-st.subheader("Notities")
-notes = st.text_area("Typ notities hier")
-
-# ---------- GENERATE ----------
-if st.button("Genereer Word document"):
-
-    if not transcript:
-        st.error("Geen transcript gevonden")
+    if not example_text:
+        st.error("Upload eerst een voorbeeld document")
         st.stop()
 
-    with st.spinner("AI is bezig..."):
+    if not transcript:
+        st.error("Geen transcript")
+        st.stop()
 
-        data = generate_json(
+    with st.spinner("AI analyseert stijl en maakt document..."):
+
+        output_text = generate_document(
             transcript=transcript,
             notes=notes,
+            example_text=example_text,
             previous_consult=previous_consult
         )
 
-        data = clean_supplements(data)
-        data = strip_bullets(data)
-
-        import uuid
         output_file = f"verslag_{uuid.uuid4()}.docx"
-
-        generate_word(data, output_file)
+        generate_word(output_text, output_file)
 
     st.success("Klaar!")
 
