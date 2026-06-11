@@ -39,14 +39,24 @@ def extract_blueprint(example_text):
     SYSTEM = """
 You are a CLINICAL DOCUMENT STRUCTURE ENGINE.
 
-Extract STRICT JSON blueprint.
+Split the document into MULTIPLE CLEAR SECTIONS.
+
+MANDATORY SECTIONS:
+- Voeding
+- Supplementen / middelen
+- Afbouw / wijziging / stoppen
+- Bereiding van maaltijden
+- Materiaal / keukenadvies
+- Overig / evaluatie (if needed)
 
 RULES:
-- Preserve order
-- Detect sections exactly 
-- Detect tables, bullets, paragraphs
-- NO content rewriting
-- OUTPUT ONLY JSON
+- NO mixing categories
+- NO giant sections
+- Each section must be independent
+- Preserve order inside sections
+- Detect bullets separately
+
+OUTPUT ONLY JSON
 
 FORMAT:
 
@@ -165,7 +175,7 @@ def generate_word(sections, output_file):
         run = p.add_run(sec["title"])
         run.bold = True
         run.font.size = Pt(16)
-        
+
         # --- CONTENT INSIDE SAME BOX ---
         for block in sec["blocks"]:
 
