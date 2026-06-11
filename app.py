@@ -5,7 +5,8 @@ from main import (
     read_docx,
     generate_document,
     generate_word,
-    transcribe_audio
+    transcribe_audio,
+    extract_meta
 )
 
 # =========================
@@ -92,9 +93,9 @@ if st.button("Genereer document"):
             example_text=example_text,
             previous_consult=previous_consult
         )
-
+        meta = extract_meta(transcript)
         output_file = f"verslag_{uuid.uuid4()}.docx"
-        generate_word(output_text, output_file)
+        generate_word(output_text, output_file, meta)
 
     st.success("Klaar!")
 
