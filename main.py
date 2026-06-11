@@ -1,27 +1,13 @@
-import uuid
 import json
 from docx import Document
-from faster_whisper import WhisperModel
 from openai import OpenAI
 import streamlit as st
 
 # =========================
-# OPENAI
+# OPENAI CLIENT
 # =========================
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
-# =========================
-# WHISPER
-# =========================
-@st.cache_resource
-def load_whisper():
-    return WhisperModel("base")
-
-whisper_model = load_whisper()
-
-def transcribe_audio(file_path):
-    segments, _ = whisper_model.transcribe(file_path)
-    return " ".join([s.text for s in segments]).strip()
 
 # =========================
 # DOCX READER
@@ -30,22 +16,107 @@ def read_docx(file):
     doc = Document(file)
     return "\n".join([p.text for p in doc.paragraphs if p.text.strip()])
 
-# =========================================================
-# STEP 1 — STRUCTURE EXTRACTION (STRONG JSON)
-# =========================================================
-def extract_blueprint(example_text):
+
+# =========================
+# STEP 1 — STYLE DNA EXTRACTION
+# =========================
+def extract_style_dna(example_text):
+    """
+    Extracts structure + formatting logic from example document.
+    """
 
     SYSTEM = """
-You are a CLINICAL DOCUMENT STRUCTURE ENGINE.
+You are a CLINICAL DOCUMENT STYLE ANALYZER.
 
-Extract STRICT JSON blueprint.
+Extract a STYLE DNA in JSON.
+
+Focus on:
+- section order
+- naming patterns
+- use of tables
+- bullet density
+- writing style (formal/clinical/structured)
+- repetition patterns
+- hierarchy rules
 
 RULES:
-- Preserve order
-- Detect sections exactly
-- Detect tables, bullets, paragraphs
-- NO content rewriting
-- OUTPUT ONLY JSON
+- OUTPUT VALID JSON ONLY
+- NO commentary
+"""
+
+    response = client.chat.completions.create(
+        model="gpt-5-mini",
+        messages=[
+            {"role": "system", "content": SYSTEM},
+            {"role": "user", "content": example_text}
+        ],
+        response_format={"type": "json_object"},
+        temperature=1
+    )
+
+    return json.loads(response.choices[0].message.content)
+
+
+# =========================
+# STEP 2 — CLINICAL FACT EXTRACTION
+# =========================
+def extract_clinical_facts(transcript, notes):
+    """
+    Converts messy input into structured medical facts.
+    """
+
+    SYSTEM = """
+You are a CLINICAL FACT EXTRACTION ENGINE.
+
+Convert input into structured medical facts.
+
+Return JSON:
+
+{
+  "symptoms": [],
+  "observations": [],
+  "supplements": [],
+  "actions": [],
+  "risks": [],
+  "timeline_events": []
+}
+
+RULES:
+- No storytelling
+- No full sentences unless needed
+- Be precise
+- Extract everything important
+"""
+
+    response = client.chat.completions.create(
+        model="gpt-5-mini",
+        messages=[
+            {"role": "system", "content": SYSTEM},
+            {"role": "user", "content": f"TRANSCRIPT:\n{transcript}\n\nNOTES:\n{notes}"}
+        ],
+        response_format={"type": "json_object"},
+        temperature=1
+    )
+
+    return json.loads(response.choices[0].message.content)
+
+# =========================
+# STEP 3 — DOCUMENT COMPOSER
+# =========================
+def compose_document(style_dna, clinical_facts):
+    """
+    Builds structured document using style + facts.
+    """
+
+    SYSTEM = """
+You are a CLINICAL DOCUMENT COMPOSER.
+
+You MUST:
+- follow STYLE DNA exactly
+- convert clinical facts into structured sections
+- ensure clarity + hierarchy
+- NEVER output free text
+- ALWAYS output JSON
 
 FORMAT:
 
@@ -70,101 +141,58 @@ FORMAT:
     response = client.chat.completions.create(
         model="gpt-5-mini",
         messages=[
-            {"role": "system", "content": SYSTEM},
-            {"role": "user", "content": example_text}
+            {
+                "role": "system",
+                "content": SYSTEM
+            },
+            {
+                "role": "user",
+                "content": json.dumps({
+                    "style_dna": style_dna,
+                    "clinical_facts": clinical_facts
+                })
+            }
         ],
-        temperature=1,
-        response_format={"type": "json_object"}
+        response_format={"type": "json_object"},
+        temperature=1
     )
 
     return json.loads(response.choices[0].message.content)
 
-# =========================================================
-# STEP 2 — FILL SECTION (BLOCK BASED)
-# =========================================================
-def generate_section(section, transcript, notes, previous_consult):
-
-    SYSTEM = """
-You are a MEDICAL DOCUMENT FILL ENGINE.
-
-RULES:
-- Follow structure EXACTLY
-- Fill each block correctly
-- No summarization
-- No merging blocks
-- Keep bullets atomic (1 idea per bullet)
-- Output VALID JSON for blocks only
-"""
-
-    USER = f"""
-SECTION STRUCTURE:
-{json.dumps(section, indent=2)}
-
-TRANSCRIPT:
-{transcript}
-
-NOTES:
-{notes}
-
-PREVIOUS:
-{previous_consult}
-
-Fill this section with correct clinical content.
-Return same structure, only filled content.
-"""
-
-    response = client.chat.completions.create(
-        model="gpt-5-mini",
-        messages=[
-            {"role": "system", "content": SYSTEM},
-            {"role": "user", "content": USER}
-        ],
-        temperature=1,
-        response_format={"type": "json_object"}
-    )
-
-    return json.loads(response.choices[0].message.content)
-
-# =========================================================
-# STEP 3 — FULL DOCUMENT
-# =========================================================
-def generate_document(transcript, notes, example_text, previous_consult=""):
-
-    blueprint = extract_blueprint(example_text)
-
-    final = []
-
-    for section in blueprint["sections"]:
-        filled = generate_section(section, transcript, notes, previous_consult)
-        final.append(filled)
-
-    return final
-
-# =========================================================
-# STEP 4 — WORD EXPORT (PROFESSIONAL LAYOUT)
-# =========================================================
-def generate_word(sections, output_file):
+# =========================
+# STEP 4 — WORD EXPORT ENGINE
+# =========================
+def generate_word(structured_doc, output_file):
 
     doc = Document()
 
-    for sec in sections:
+    for section in structured_doc["sections"]:
 
-        doc.add_heading(sec["title"], level=1)
+        # BIG TITLE
+        doc.add_heading(section["title"], level=1)
 
-        for block in sec["blocks"]:
+        for block in section.get("blocks", []):
 
             btype = block.get("type")
 
-            # PARAGRAPH
+            # =========================
+            # PARAGRAPH BLOCK
+            # =========================
             if btype == "paragraph":
-                doc.add_paragraph(block.get("content", ""))
+                text = block.get("content", "")
+                if text:
+                    doc.add_paragraph(text)
 
-            # BULLETS
+            # =========================
+            # BULLET BLOCK
+            # =========================
             elif btype == "bullets":
                 for item in block.get("items", []):
                     doc.add_paragraph(item, style="List Bullet")
 
-            # TABLE
+            # =========================
+            # TABLE BLOCK
+            # =========================
             elif btype == "table":
                 cols = block.get("columns", [])
                 rows = block.get("rows", [])
@@ -172,13 +200,16 @@ def generate_word(sections, output_file):
                 if cols:
                     table = doc.add_table(rows=1, cols=len(cols))
 
-                    for i, c in enumerate(cols):
-                        table.rows[0].cells[i].text = str(c)
+                    # header
+                    for i, col in enumerate(cols):
+                        table.rows[0].cells[i].text = str(col)
 
+                    # rows
                     for r in rows:
                         row_cells = table.add_row().cells
                         for i, val in enumerate(r):
-                            row_cells[i].text = str(val)
+                            if i < len(row_cells):
+                                row_cells[i].text = str(val)
 
     doc.save(output_file)
     return output_file

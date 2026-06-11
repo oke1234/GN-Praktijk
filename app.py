@@ -1,106 +1,79 @@
 import streamlit as st
 import uuid
-
+from faster_whisper import WhisperModel
 from main import (
     read_docx,
-    generate_document,
-    generate_word,
-    transcribe_audio
+    extract_style_dna,
+    extract_clinical_facts,
+    compose_document,
+    generate_word
 )
+
+# =========================
+# WHISPER
+# =========================
+@st.cache_resource
+def load_whisper():
+    return WhisperModel("base")
+
+whisper_model = load_whisper()
+
+
+def transcribe_audio(file_path):
+    segments, _ = whisper_model.transcribe(file_path)
+    return " ".join([s.text for s in segments]).strip()
+
 
 # =========================
 # UI
 # =========================
-st.title("AI Consult Verslag Generator (Blueprint System)")
+st.title("🧠 Clinical Report Generator (Advanced AI)")
 
-# =========================
-# EXAMPLE DOCUMENT
-# =========================
-st.subheader("📄 Voorbeeld document (BELANGRIJK)")
+example_file = st.file_uploader("Upload example DOCX (style reference)", type=["docx"])
+audio_file = st.file_uploader("Upload audio", type=["mp3", "wav"])
+notes = st.text_area("Extra notes")
 
-example_file = st.file_uploader(
-    "Upload voorbeeld DOCX",
-    type=["docx"]
-)
 
-example_text = ""
+if st.button("Generate Document"):
 
-if example_file:
+    if not example_file:
+        st.error("Upload example document")
+        st.stop()
+
+    # =========================
+    # INPUT PROCESSING
+    # =========================
     example_text = read_docx(example_file)
-    st.success("Voorbeeld geladen")
 
-# =========================
-# VORIG CONSULT
-# =========================
-st.subheader("📋 Vorig consult (optioneel)")
+    transcript = ""
+    if audio_file:
+        temp_path = "temp_audio.wav"
+        with open(temp_path, "wb") as f:
+            f.write(audio_file.read())
 
-previous_file = st.file_uploader(
-    "Upload vorig consult",
-    type=["docx"],
-    key="prev"
-)
+        transcript = transcribe_audio(temp_path)
 
-previous_consult = ""
+    # =========================
+    # PIPELINE
+    # =========================
+    with st.spinner("Extracting style DNA..."):
+        style_dna = extract_style_dna(example_text)
 
-if previous_file:
-    previous_consult = read_docx(previous_file)
+    with st.spinner("Extracting clinical facts..."):
+        facts = extract_clinical_facts(transcript, notes)
 
-# =========================
-# TRANSCRIPT
-# =========================
-st.subheader("🎤 Transcript")
+    with st.spinner("Composing document..."):
+        structured_doc = compose_document(style_dna, facts)
 
-audio_file = st.file_uploader("Upload audio (mp3/wav)", type=["mp3", "wav"])
+    with st.spinner("Generating Word file..."):
+        output_file = f"report_{uuid.uuid4().hex}.docx"
+        generate_word(structured_doc, output_file)
 
-transcript = ""
-
-if audio_file:
-    with open("temp_audio.mp3", "wb") as f:
-        f.write(audio_file.read())
-
-    transcript = transcribe_audio("temp_audio.mp3")
-    st.success("Transcript gemaakt")
-
-else:
-    transcript = st.text_area("Of plak transcript")
-
-# =========================
-# NOTES
-# =========================
-st.subheader("📝 Notities")
-
-notes = st.text_area("Extra notities")
-
-# =========================
-# GENERATE
-# =========================
-if st.button("Genereer document"):
-
-    if not example_text:
-        st.error("Upload eerst een voorbeeld document")
-        st.stop()
-
-    if not transcript:
-        st.error("Geen transcript")
-        st.stop()
-
-    with st.spinner("AI bouwt blueprint en genereert document..."):
-
-        output_text = generate_document(
-            transcript=transcript,
-            notes=notes,
-            example_text=example_text,
-            previous_consult=previous_consult
-        )
-
-        output_file = f"verslag_{uuid.uuid4()}.docx"
-        generate_word(output_text, output_file)
-
-    st.success("Klaar!")
+    st.success("Done!")
 
     with open(output_file, "rb") as f:
         st.download_button(
-            "Download Word document",
+            "Download Word Document",
             f,
-            file_name="consult_verslag.docx"
+            file_name="clinical_report.docx"
         )
