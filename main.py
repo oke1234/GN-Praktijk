@@ -140,6 +140,33 @@ Return same structure, only filled content.
 
     return json.loads(response.choices[0].message.content)
 
+
+def extract_meta(transcript):
+
+    SYSTEM = """
+Extract structured metadata from medical transcript.
+
+Return JSON ONLY:
+{
+  "date": "",
+  "name": "",
+  "next_consult": ""
+}
+
+If unknown, return empty string.
+"""
+
+    response = client.chat.completions.create(
+        model="gpt-5-mini",
+        messages=[
+            {"role": "system", "content": SYSTEM},
+            {"role": "user", "content": transcript}
+        ],
+        temperature=0,
+        response_format={"type": "json_object"}
+    )
+
+    return json.loads(response.choices[0].message.content)
 # =========================================================
 # STEP 3 — FULL DOCUMENT
 # =========================================================
@@ -158,9 +185,14 @@ def generate_document(transcript, notes, example_text, previous_consult=""):
 # =========================================================
 # STEP 4 — WORD EXPORT (PROFESSIONAL LAYOUT)
 # =========================================================
-def generate_word(sections, output_file):
+def generate_word(sections, output_file, meta):
 
     doc = Document()
+
+    doc.add_paragraph(f"Datum: {meta.get('date', '')}")
+    doc.add_paragraph(f"Naam: {meta.get('name', '')}")
+    doc.add_paragraph(f"Datum volgende consult: {meta.get('next_consult', '')}")
+    doc.add_paragraph("")
 
     for sec in sections:
 
