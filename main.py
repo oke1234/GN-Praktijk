@@ -4,6 +4,7 @@ from docx import Document
 from faster_whisper import WhisperModel
 from openai import OpenAI
 import streamlit as st
+from docx.shared import Pt
 
 # =========================
 # OPENAI
@@ -42,7 +43,7 @@ Extract STRICT JSON blueprint.
 
 RULES:
 - Preserve order
-- Detect sections exactly
+- Detect sections exactly 
 - Detect tables, bullets, paragraphs
 - NO content rewriting
 - OUTPUT ONLY JSON
@@ -94,6 +95,10 @@ RULES:
 - No merging blocks
 - Keep bullets atomic (1 idea per bullet)
 - Output VALID JSON for blocks only
+
+Important
+- Give each section a CLINICAL title based on content use the title 
+- Put each section in their own box, do not merge content from different sections
 """
 
     USER = f"""
@@ -149,34 +154,44 @@ def generate_word(sections, output_file):
 
     for sec in sections:
 
-        doc.add_heading(sec["title"], level=1)
+        # --- CREATE BOX (TABLE) ---
+        table = doc.add_table(rows=1, cols=1)
+        table.style = "Table Grid"   # gives visible border
 
+        cell = table.rows[0].cells[0]
+
+        # --- SECTION TITLE INSIDE BOX ---
+        p = cell.add_paragraph()
+        run = p.add_run(sec["title"])
+        run.bold = True
+        run.font.size = Pt(16)
+        
+        # --- CONTENT INSIDE SAME BOX ---
         for block in sec["blocks"]:
 
             btype = block.get("type")
 
-            # PARAGRAPH
             if btype == "paragraph":
-                doc.add_paragraph(block.get("content", ""))
+                cell.add_paragraph(block.get("content", ""))
 
-            # BULLETS
             elif btype == "bullets":
                 for item in block.get("items", []):
-                    doc.add_paragraph(item, style="List Bullet")
+                    cell.add_paragraph(item, style="List Bullet")
 
-            # TABLE
             elif btype == "table":
                 cols = block.get("columns", [])
                 rows = block.get("rows", [])
 
                 if cols:
-                    table = doc.add_table(rows=1, cols=len(cols))
+                    t = cell.add_table(rows=1, cols=len(cols))
 
+                    # header
                     for i, c in enumerate(cols):
-                        table.rows[0].cells[i].text = str(c)
+                        t.rows[0].cells[i].text = str(c)
 
+                    # data rows
                     for r in rows:
-                        row_cells = table.add_row().cells
+                        row_cells = t.add_row().cells
                         for i, val in enumerate(r):
                             row_cells[i].text = str(val)
 
