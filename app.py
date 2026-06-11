@@ -5,22 +5,21 @@ from main import (
     read_docx,
     generate_document,
     generate_word,
-    transcribe_audio,
-    extract_meta
+    transcribe_audio
 )
 
 # =========================
 # UI
 # =========================
-st.title("AI Consult Verslag Generator (Blueprint System)")
+st.title("AI Consult Verslag Generator (Style Clone)")
 
 # =========================
-# EXAMPLE DOCUMENT
+# EXAMPLE DOCUMENT (IMPORTANT)
 # =========================
-st.subheader("📄 Voorbeeld document (BELANGRIJK)")
+st.subheader("📄 Voorbeeld (stijl template)")
 
 example_file = st.file_uploader(
-    "Upload voorbeeld DOCX",
+    "Upload voorbeeld document (DOCX)",
     type=["docx"]
 )
 
@@ -31,12 +30,12 @@ if example_file:
     st.success("Voorbeeld geladen")
 
 # =========================
-# VORIG CONSULT
+# VORIG CONSULT (OPTIONAL)
 # =========================
 st.subheader("📋 Vorig consult (optioneel)")
 
 previous_file = st.file_uploader(
-    "Upload vorig consult",
+    "Upload vorig consult (DOCX)",
     type=["docx"],
     key="prev"
 )
@@ -69,7 +68,6 @@ else:
 # NOTES
 # =========================
 st.subheader("📝 Notities")
-
 notes = st.text_area("Extra notities")
 
 # =========================
@@ -85,7 +83,7 @@ if st.button("Genereer document"):
         st.error("Geen transcript")
         st.stop()
 
-    with st.spinner("AI bouwt blueprint en genereert document..."):
+    with st.spinner("AI analyseert stijl en maakt document..."):
 
         output_text = generate_document(
             transcript=transcript,
@@ -93,9 +91,9 @@ if st.button("Genereer document"):
             example_text=example_text,
             previous_consult=previous_consult
         )
-        meta = extract_meta(transcript)
+
         output_file = f"verslag_{uuid.uuid4()}.docx"
-        generate_word(output_text, output_file, meta)
+        generate_word(output_text, output_file)
 
     st.success("Klaar!")
 
